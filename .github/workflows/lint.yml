@@ -11,6 +11,28 @@ permissions:
   contents: read
  
 jobs:
+
+  build-go:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+    
+      - name: Checkout code 
+        uses: actions/checkout@v2
+
+      - name: Install Dependecies
+        run: go get ./...
+
+      - name: Go mod tidy
+        run: go mod tidy
+
+      - name: Build
+        run: make build
+  
   golangci:
     name: lint
     runs-on: ubuntu-latest
@@ -20,3 +42,13 @@ jobs:
         uses: golangci/golangci-lint-action@v2
         with:
           version: latest
+  format:
+    name: gofmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: gofmt
+        uses: Jerome1337/gofmt-action@v1.0.4
+          with:
+            gofmt-path: './src'
+            gofmt-flags: '-l -d'

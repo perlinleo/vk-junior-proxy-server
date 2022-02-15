@@ -9,7 +9,7 @@ import (
 	parse "github.com/perlinleo/vk-junior-proxy-server/src/parse"
 )
 
-func ProxyConn(conn *net.TCPConn) {
+func ProxyConn(conn *net.TCPConn) error {
 
 	var pa parse.Parser
 	pa.NewParser(conn)
@@ -20,7 +20,7 @@ func ProxyConn(conn *net.TCPConn) {
 	rConn, err := net.Dial("tcp", parse.ParseAddr(sendTo))
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer rConn.Close()
 	defer conn.Close()
@@ -29,8 +29,8 @@ func ProxyConn(conn *net.TCPConn) {
 
 	pa.Buf.WriteString("\r\n\r\n")
 
-	if _, err := rConn.Write([]byte(pa.Buf.String())); err != nil {
-		panic(err)
+	if _, err := rConn.Write(pa.Buf.Bytes()); err != nil {
+		return err
 	}
 	log.Printf("sent:\n%v", hex.Dump(pa.Buf.Bytes()))
 
@@ -38,7 +38,7 @@ func ProxyConn(conn *net.TCPConn) {
 	n, err := rConn.Read(data)
 	if err != nil {
 		if err != io.EOF {
-			panic(err)
+			return err
 		} else {
 			log.Printf("received err: %v", err)
 		}
@@ -46,8 +46,9 @@ func ProxyConn(conn *net.TCPConn) {
 	log.Printf("received:\n%v", hex.Dump(data[:n]))
 
 	if _, err := conn.Write(data[:n]); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
 func HandleConn(in <-chan *net.TCPConn, out chan<- *net.TCPConn) {
