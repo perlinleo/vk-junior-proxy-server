@@ -54,7 +54,7 @@ func ProxyConn(conn *net.TCPConn) error {
 func HandleConn(in <-chan *net.TCPConn, out chan<- *net.TCPConn) {
 	for conn := range in {
 		err := ProxyConn(conn)
-		if err!=nil {
+		if err != nil {
 			log.Printf("received err: %v", err)
 		}
 		out <- conn
