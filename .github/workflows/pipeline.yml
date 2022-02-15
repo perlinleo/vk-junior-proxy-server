@@ -49,6 +49,6 @@ jobs:
       - uses: actions/checkout@v2
       - name: gofmt
         uses: Jerome1337/gofmt-action@v1.0.4
-          with:
+        with:
             gofmt-path: './src'
             gofmt-flags: '-l -d'
